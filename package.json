@@ -11,14 +11,15 @@
   "dependencies": {
     "bcrypt-nodejs": "*",
     "body-parser": "*",
+    "connect-multiparty": "^2.0.0",
     "express": "^5.0.0-alpha.1",
     "jsonwebtoken": "*",
     "mongoose": "*",
+    "multiparty": "^4.1.2",
     "underscore": "^1.8.3"
   },
-  "repository" :
-  { 
-    "type" : "git",
-    "url" : "https://github.com/skothawala/ClassmatesConnect.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skothawala/ClassmatesConnect.git"
   }
 }

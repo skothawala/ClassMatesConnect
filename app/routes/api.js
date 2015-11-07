@@ -13,6 +13,9 @@ module.exports = function(app, express) {
 	apiRouter.get('/', function(req, res) {
 		res.json({ message: 'Hello' });	
 	});
+	
+	var userRoutes = require(__dirname + "/api/users")(app, express);
+	app.use('/api/users', userRoutes);
 
 	
 	return apiRouter;
