@@ -49,8 +49,6 @@ module.exports = function(app, express) {
 	      // check if password matches
 	      var validPassword = user.comparePassword(req.body.password);
 	      if (!validPassword) {
-	    	user.sendEmail('TipMe: Login Attempt', 'There was an unsuccessful login attempt at ' + new Date(),
-	    		'There was an unsuccessful login attempt at ' + new Date());
 	        res.json({ 
 	        	success: false, 
 	        	message: 'Authentication failed. Wrong password.' 
@@ -107,104 +105,7 @@ module.exports = function(app, express) {
 		}
 		
 	});
-	/**
-		Creates a password reset hash for a user given an email or username.
-		@param username OR email
-	**/
-	usersRouter.post('/forgot', function(req, res){
-		if(!req.body.username && !req.body.email)
-			return res.status(406).send({ success: false, message: 'Please type in your email or username' });
-		if(!user)
-				return res.status(404).json({success: false, message: "User not found"});
-
-		if(req.body.username){
-			User.findOne({ 'username': req.body.username }, 'id username email password_reset_hash account_status', function (err, user) {
-			 	if(err)	  		
-					return res.status(406).json({success: false, error: err});
-				
-				user.account_status = "RESET_PENDING";
-				var hash = '';
-				user.password_reset_hash = hash;
-				
-				user.save(function (err){
-					if(err)
-						return res.status(406).json({success: false, error: err});
-
-					user.sendEmail('TipMe: Password Reset Information',
-					'To reset your tipme password for your account (username: '+user.username+'), please visit http://tip.me/reset?token=' + hash,
-					'To reset your tipme password for your account (username: '+user.username+'), please visit <a href="http://tip.me/reset?token=' + hash + '">'
-					+ 'http://tip.me/reset?token=' + hash + '</a>');
-					return res.status(200).json({success: true, message: "Please check your email for password reset information"});
-				});
-			});
-		}else{
-			User.findOne({ 'email': req.body.email }, 'id username email password_reset_hash account_status', function (err, user) {
-			 	if(err)	  		
-					return res.status(406).json({success: false, error: err});
-				
-				user.account_status = "RESET_PENDING";
-				var hash = '';
-				user.password_reset_hash = hash;
-				
-				user.save(function (err){
-					if(err)
-						return res.status(406).json({success: false, error: err});
-
-					user.sendEmail('TipMe: Password Reset Information',
-					'To reset your tipme password for your account (username: '+user.username+'), please visit http://tip.me/reset?token=' + hash,
-					'To reset your tipme password for your account (username: '+user.username+'), please visit <a href="http://tip.me/reset?token=' + hash + '">'
-					+ 'http://tip.me/reset?token=' + hash + '</a>');
-					return res.status(200).json({success: true, message: "Please check your email for password reset information"});
-				});
-			});
-		}
-	});
-
-	/**
-		Authenticates a reset token and changes the password
-		@param username
-		@param hash
-		@param password -> new password
-	**/
-	usersRouter.post('/reset', function(req, res){
-		if(!req.body.username || !req.body.hash || !req.body.password)
-			return res.status(406).send({ success: false, message: 'Please type in your username, password has and new password' });
-
-		User.findOne({ 'username': req.body.username }, 'id username email password_reset_hash account_status', function (err, user) {
-		 	if(err)
-				return res.status(406).json({success: false, error: err});
-			if(!user)
-				return res.status(404).json({success: false, message: "User not found"});
-			
-			if(req.body.hash != user.password_reset_hash){
-				var hash = '';
-				user.password_reset_hash = hash;
-				
-				user.save(function (err){
-					if(err)
-						return res.status(406).json({success: false, error: err});
-
-					user.sendEmail('TipMe: Password Reset Information',
-					'To reset your tipme password for your account (username: '+user.username+'), please visit http://tip.me/reset?token=' + hash,
-					'To reset your tipme password for your account (username: '+user.username+'), please visit <a href="http://tip.me/reset?token=' + hash + '">'
-					+ 'http://tip.me/reset?token=' + hash + '</a>');
-					return res.status(406).json({success: false, message: "Hash verification failed. Please check your email for a new password reset link"});
-				});
-			}else{
-				user.account_status = "active";
-				user.password_reset_hash = '';
-				user.password = req.body.password;
-				user.save(function (err){
-					if(err)
-						return res.status(406).json({success: false, error: err});
-
-					return res.status(200).json({success: true, message: "Your password has been reset"});
-				});
-			}
-		});		
-	});
-
-
+	
 	/**
 		Get a users profile
 		@param username in the url
@@ -225,7 +126,7 @@ module.exports = function(app, express) {
 	usersRouter.use(function(req, res, next) {
 
 	  // check header or url parameters or post parameters for token
-	  var token = req.body.token || req.param('token') || req.headers['x-access-token'];
+	  var token = req.body.token || req.headers['x-access-token'];
 
 	  // decode token
 	  if(token){
@@ -268,25 +169,7 @@ module.exports = function(app, express) {
 			}else if(!user){
 				return res.status(404).json({success: false, message: "User not found"});
 			}else{
-				/*coinpaymentAPI.rates(function(err,result){
-					if(err)
-						console.log("Coinpayments rate error: " + err);
-
-					var keys = Object.keys( result );
-					for(var i =0; i < user.currency.length; i++){
-						for(var j =0; j < keys.length; j++){
-							if(keys[j].toLowerCase() == user.currency[i].name.toLowerCase()){
-								total_amt_usd += (user.currency[i].balance * result[keys[j]].rate_btc) / result.USD.rate_btc;
-								break;
-							}
-						}
-					}
-
-					req.decoded.profile = user;
-					req.decoded.total_amt_usd = total_amt_usd;
-					
-					return res.send(req.decoded);
-				});*/
+				
 				req.decoded.profile = user;				
 				return res.send(req.decoded);
 			}

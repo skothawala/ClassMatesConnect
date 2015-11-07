@@ -9,6 +9,7 @@
   },
   "author": "Saad K, Tayo O., Krunal D.",
   "dependencies": {
+    "bcrypt": "^0.8.5",
     "bcrypt-nodejs": "*",
     "body-parser": "*",
     "connect-multiparty": "^2.0.0",
