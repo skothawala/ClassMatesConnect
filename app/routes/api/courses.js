@@ -21,6 +21,17 @@ module.exports = function(app, express) {
 	coursesRouter.get('/', function(req, res) {
 		return res.json({message: 'Hello Courses'})
 	})
+	
+	coursesRouter.get('/search/:searchTerm', function(req, res) {
+		
+		Course.find({course_title: {$regex : ".*"+ req.params.searchTerm +".*", $options: "i" } }, function (err, courses) { 
+			if(err)
+				res.send(err)
+			else
+				res.json({courses: courses});
+		})
+		
+	})
 
 	coursesRouter.post('/add', function (req, res) {
 		var course = new Course();

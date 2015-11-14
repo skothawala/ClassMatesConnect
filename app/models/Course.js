@@ -28,6 +28,8 @@ var CourseSchema   = new Schema({
 	date_added: { type: Date, default: Date.now }
 });
 
+
+
 module.exports = mongoose.model('Course', CourseSchema);
 
 
