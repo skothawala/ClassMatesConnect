@@ -7,9 +7,6 @@ sheet = wb.get_sheet_by_name('Sheet1')
 #for row in range(2, sheet.get_highest_row() + 1):
 i = 2000
 for row in range(2000, sheet.get_highest_row() + 1):
-    # Each row in the spreadsheet has data for one census tract.
-    
-    
     params = urllib.urlencode({
         "subject" : sheet['A' + str(row)].value,
         "career":sheet['B' + str(row)].value,
