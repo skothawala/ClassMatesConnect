@@ -5,8 +5,8 @@ import urllib
 wb = openpyxl.load_workbook('Course Enrollments.Fall 2015.10282015.xlsx')
 sheet = wb.get_sheet_by_name('Sheet1')
 #for row in range(2, sheet.get_highest_row() + 1):
-
-for row in range(2, 3):
+i = 2000
+for row in range(2000, sheet.get_highest_row() + 1):
     # Each row in the spreadsheet has data for one census tract.
     
     
@@ -26,8 +26,9 @@ for row in range(2, 3):
         "end_time":sheet['AE' + str(row)].value
     })
     
-    f = urllib.urlopen("https://classmatesconnect-skothawala.c9users.io/api/courses", params)
+    f = urllib.urlopen("https://classmatesconnect-skothawala.c9users.io:8080/api/courses/add", params)
     print f.read()
-
+    print i
+    i += 1
     
     

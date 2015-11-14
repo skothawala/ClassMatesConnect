@@ -12,8 +12,8 @@ var PostsSchema = new Schema ({
 var CourseSchema   = new Schema({
 	subject: {type: String},
 	career: {type: String},
-	catalog_number: {type: Number},
-	section_number: {type: Number},
+	catalog_number: {type: String},
+	section_number: {type: String},
 	course_title: {type: String},
 	intstructor: {type: String},
 	intstructor_email: {type: String},
