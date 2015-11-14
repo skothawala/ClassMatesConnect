@@ -1,5 +1,5 @@
 var bodyParser = require('body-parser');
-var User       = require('../../models/user');
+var User       = require('../../models/User');
 var jwt        = require('jsonwebtoken');
 var config     = require('../../../config');
 var _ 		   = require('underscore');
@@ -18,7 +18,7 @@ module.exports = function(app, express) {
 
 
 	usersRouter.get('/', function(req, res) {
-		return res.json({message: 'Hello'})
+		return res.json({message: 'Hello Users'})
 	})
 
 	/**

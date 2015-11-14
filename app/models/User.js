@@ -11,6 +11,7 @@ var UserSchema   = new Schema({
 	bio: { type: String, default: "" },
 	gender: {type: String, default: ""},
 	major: {type: String, default: ""},
+	courses: [{type: Schema.ObjectId, ref: 'Course'}],
 	created_at: { type: Date, default: Date.now },
   	updated_at: { type: Date, default: Date.now },
   	last_login: { type: Date, default: Date.now },
