@@ -1,5 +1,6 @@
 var bodyParser = require('body-parser');
 var User       = require('../../models/User');
+var Course       = require('../../models/Course');
 var jwt        = require('jsonwebtoken');
 var config     = require('../../../config');
 var _ 		   = require('underscore');
@@ -154,12 +155,7 @@ module.exports = function(app, express) {
 	});
 
 	//used for jwt
-	usersRouter.get('/me', function(req, res) {
-		/*var coinpaymentAPI = new coinpayments({
-			key: config.coinpayments.key,
-			secret: config.coinpayments.secret
-		});*/
-		
+	usersRouter.get('/me', function(req, res) {		
 		if(!req.decoded.username)
 			return res.status(404).json({success: false, message: "Param username not found"});
 
@@ -177,9 +173,44 @@ module.exports = function(app, express) {
 	});
 	
 	/**
-		Uses the coinpayments API to get the total balance of said user in USD.
+		Add a course
+		@param courseId -> courseID to add
 	**/
-	
+	usersRouter.post('/addCourse', function(req, res){
+		var username = req.decoded.username;
+		var courseID = req.body.courseId;
+		if(!username || !courseID)
+			return res.status(404).json({success: false, message: "Params not found"});
+
+		User.findOne({username: username}).select('courses').exec(function(err, user){
+			if(err)
+				return res.status(406).json({success: false, error: err});
+	    	if(!user)
+				return res.status(404).json({success: false, message: "User not found: " + username});
+
+			Course.findById(courseID, function(err, course){
+				if(err)
+					return res.status(406).json({success: false, error: err});
+	    		if(!course)
+					return res.status(404).json({success: false, message: "Course not found: " + username});
+
+				course.students.push(user.id);
+				course.save(function(err){
+					if(err)
+						return res.status(406).json({success: false, error: err});
+	    			user.courses.push(course.id);
+	    			user.save(function(err){
+	    				if(err)
+							return res.status(406).json({success: false, error: err});
+						else
+							return res.status(200).json({success: true, message: "Course added"});
+	    			});//end user save
+				});//end course save
+			});///course find
+		});//end user find
+	});//end post /addCourse
+
+
 	
 	usersRouter.get('/settings', function(req, res){
 		var username = req.decoded.username;
