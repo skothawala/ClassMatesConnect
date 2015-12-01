@@ -209,6 +209,28 @@ module.exports = function(app, express) {
 			});///course find
 		});//end user find
 	});//end post /addCourse
+	
+	/**
+		Retrieves courses the logged in student is enrolled in
+		@return array of courses
+			{ "success": true, "message": { "_id": "", "courses": [ ... ] } }
+	**/
+	usersRouter.get('/myCourses', function(req, res){
+		var username = req.decoded.username;
+		if(!username)
+			return res.status(404).json({success: false, message: "Params not found"});
+
+		User.findOne({username: username}).select('courses').populate('courses').exec(function(err, user){
+			if(err)
+				return res.status(406).json({success: false, error: err});
+	    	if(!user)
+				return res.status(404).json({success: false, message: "User not found: " + username});
+
+			return res.status(200).json({success: true, message: user});
+
+		});
+		
+	});
 
 
 	
