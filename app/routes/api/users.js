@@ -178,8 +178,8 @@ module.exports = function(app, express) {
 	**/
 	usersRouter.post('/addCourse', function(req, res){
 		var username = req.decoded.username;
-		var courseID = req.body.courseId;
-		if(!username || !courseID)
+		var courseId = req.body.courseId;
+		if(!username || !courseId)
 			return res.status(404).json({success: false, message: "Params not found"});
 
 		User.findOne({username: username}).select('courses').exec(function(err, user){
@@ -188,11 +188,11 @@ module.exports = function(app, express) {
 	    	if(!user)
 				return res.status(404).json({success: false, message: "User not found: " + username});
 
-			Course.findById(courseID, function(err, course){
+			Course.findById(courseId, function(err, course){
 				if(err)
 					return res.status(406).json({success: false, error: err});
 	    		if(!course)
-					return res.status(404).json({success: false, message: "Course not found: " + username});
+					return res.status(404).json({success: false, message: "Course not found: " + courseId});
 
 				course.students.push(user.id);
 				course.save(function(err){
