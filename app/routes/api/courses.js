@@ -20,7 +20,7 @@ module.exports = function(app, express) {
 
 	coursesRouter.get('/', function(req, res) {
 		return res.json({message: 'Hello Courses'})
-	})
+	});
 	
 	coursesRouter.get('/search/:searchTerm', function(req, res) {
 		
@@ -33,6 +33,62 @@ module.exports = function(app, express) {
 		
 	})
 
+		// route middleware to verify a token for everything after this
+	coursesRouter.use(function(req, res, next) {
+
+	  // check header or url parameters or post parameters for token
+	  var token = req.body.token || req.headers['x-access-token'];
+
+	  // decode token
+	  if(token){
+	    // verifies secret and checks exp
+	    jwt.verify(token, superSecret, function(err, decoded) {      
+	      if (err) {
+	        res.status(403).send({ 
+	        	success: false, 
+	        	message: 'Failed to authenticate token.' 
+	    	});  	   
+	      } else { 
+	        // if everything is good, save to request for use in other routes
+	        req.decoded = decoded;
+	        next(); // make sure we go to the next routes and don't stop here
+	      }
+	    });
+	  } else {
+	    // if there is no token
+	    // return an HTTP response of 403 (access forbidden) and an error message
+   	 	res.status(403).send({
+   	 		success: false,
+   	 		message: 'No token provided.'
+   	 	});
+	  }
+	});
+
+
+	coursesRouter.post('/classmates', function(req, res) {
+		console.log(req.decoded);
+		var username = req.decoded.username;
+		var courseId = req.body.courseId;
+		if(!username || !courseId)
+			return res.status(404).json({success: false, message: "Params not found"});
+
+		Course.findById(courseId).populate('students').exec(function(err, course){
+			if(err)
+				return res.status(406).json({success: false, error: err});
+    		if(!course)
+				return res.status(404).json({success: false, message: "Course not found: " + courseId});
+			for (var i = course.students.length - 1; i >= 0; i--)
+				if(course.students[i].username == username)
+					return res.status(200).json({success: true, course: course, classmates: course.students});
+		
+			return res.status(406).json({success: false, error: "You are not enrolled in that class"});
+		});
+
+
+	});
+
+	/*
+		Commented out because we don't want anyone to be able to add courses
 	coursesRouter.post('/add', function (req, res) {
 		var course = new Course();
 			_.extend(course,req.body);
@@ -43,7 +99,7 @@ module.exports = function(app, express) {
 				}
 				res.json({ message: 'Course created!' });
 			});
-	})
+	})*/
 
 	
 	return coursesRouter;
